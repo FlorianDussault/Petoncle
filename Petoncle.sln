@@ -3,11 +3,35 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.33205.214
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Petoncle", "Petoncle\Petoncle.csproj", "{3DB2726B-397A-4695-A373-834E88F6DCCE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Petoncle.Performances", "Petoncle.Performances\Petoncle.Performances.csproj", "{B56F1C76-1CA0-4ADD-BD91-9EC341812E29}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Petoncle.UnitTest.SqlServer", "Petoncle.UnitTest.SqlServer\Petoncle.UnitTest.SqlServer.csproj", "{CDF6B0E0-CA15-42A2-B8A6-22939B9AFB98}"
+EndProject
 Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CA6EA8DE-8D7B-44A7-9DE7-10F239F71079}
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3DB2726B-397A-4695-A373-834E88F6DCCE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3DB2726B-397A-4695-A373-834E88F6DCCE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3DB2726B-397A-4695-A373-834E88F6DCCE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3DB2726B-397A-4695-A373-834E88F6DCCE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B56F1C76-1CA0-4ADD-BD91-9EC341812E29}.Debug|Any CPU.ActiveCfg = Release|Any CPU
+		{B56F1C76-1CA0-4ADD-BD91-9EC341812E29}.Debug|Any CPU.Build.0 = Release|Any CPU
+		{B56F1C76-1CA0-4ADD-BD91-9EC341812E29}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B56F1C76-1CA0-4ADD-BD91-9EC341812E29}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CDF6B0E0-CA15-42A2-B8A6-22939B9AFB98}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CDF6B0E0-CA15-42A2-B8A6-22939B9AFB98}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CDF6B0E0-CA15-42A2-B8A6-22939B9AFB98}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CDF6B0E0-CA15-42A2-B8A6-22939B9AFB98}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 EndGlobal
