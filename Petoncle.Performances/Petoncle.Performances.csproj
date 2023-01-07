@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>disable</Nullable>
+        <LangVersion>preview</LangVersion>
+        <TargetFrameworks>net48;net6.0;net7.0</TargetFrameworks>
+        <RootNamespace>PetonclePerformances</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="BenchmarkDotNet" Version="0.13.3" />
+      <PackageReference Include="Dapper" Version="2.0.123" />
+      <PackageReference Include="LazySqlStandard.Engine" Version="2.1.1-preview" />
+      <PackageReference Include="Microsoft.Data.SqlClient" Version="5.0.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Petoncle\Petoncle.csproj" />
+    </ItemGroup>
+
+</Project>

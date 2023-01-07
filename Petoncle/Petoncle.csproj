@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+<!--        <ImplicitUsings>enable</ImplicitUsings>-->
+        <Nullable>disable</Nullable>
+        <RootNamespace>PetoncleDb</RootNamespace>
+        <TargetFrameworks>net48;net6.0;net7.0;netstandard2.1</TargetFrameworks>
+        <LangVersion>latest</LangVersion>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <Version>1.0.0-preview</Version>
+        <Title>Petoncle ORM</Title>
+        <SignAssembly>true</SignAssembly>
+        <AssemblyOriginatorKeyFile>PetoncleKey.snk</AssemblyOriginatorKeyFile>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+      <DefineConstants />
+      <DebugType>none</DebugType>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="LazySqlStandard.Engine" Version="2.1.1-preview" />
+      <PackageReference Include="System.Memory" Version="4.5.5" />
+    </ItemGroup>
+
+</Project>
