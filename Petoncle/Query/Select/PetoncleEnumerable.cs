@@ -54,7 +54,6 @@ internal sealed class PetoncleEnumerable<T> : IPetoncleEnumerable<T>
         }
         
     }
-
     private IEnumerable<T> ReadDynamic(IDataReader dataReader)
     {
         string[] columns = new string[dataReader.FieldCount];
@@ -74,4 +73,15 @@ internal sealed class PetoncleEnumerable<T> : IPetoncleEnumerable<T>
     }
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    public int Count
+    {
+        get
+        {
+            QueryBuilder queryBuilder = new(_pObject);
+            _selectBase.BuildCount(ref queryBuilder);
+            SqlClient sqlClient = new(_connection);
+            return (int)sqlClient.ExecuteScalar(queryBuilder);
+        }
+    }
 }

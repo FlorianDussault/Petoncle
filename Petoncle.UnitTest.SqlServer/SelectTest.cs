@@ -29,5 +29,11 @@ public class SelectTest : General
         // TODO: Reactivate
         List<dynamic> a = Petoncle.Db.Select<dynamic>("users").ToList();
     }
+
+    [Test]
+    public void SelectCountPetoncle()
+    {
+        var count = Petoncle.Db.Select<User>().Count;
+    }
     
 }

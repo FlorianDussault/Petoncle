@@ -32,16 +32,25 @@ internal class SelectSqlServer : SelectBase
         queryBuilder.Append(" FROM " + PObject.FullTableName);
         
         #region WHERE
-
         if (WhereQuery != null)
         {
             queryBuilder.Append(" WHERE ");
             WhereQuery.Build(ref queryBuilder);
         }
-
         #endregion
         
     }
 
-  
+
+    protected internal override void BuildCount(ref QueryBuilder queryBuilder)
+    {
+        queryBuilder.Append("SELECT COUNT(1) FROM " + PObject.FullTableName);
+
+        if (WhereQuery == null) return;
+        
+        #region WHERE
+        queryBuilder.Append(" WHERE ");
+        WhereQuery.Build(ref queryBuilder);
+        #endregion
+    }
 }

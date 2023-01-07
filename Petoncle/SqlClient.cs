@@ -64,4 +64,26 @@ internal class SqlClient : IDisposable
         _dbCommand?.Dispose();
         _dbConnection?.Dispose();
     }
+
+    public object ExecuteScalar(QueryBuilder queryBuilder)
+    {
+        _dbCommand.CommandText = queryBuilder.GetQuery();
+
+        foreach (SqlArgument argument in queryBuilder.Arguments)
+        {
+            IDbDataParameter parameter = _dbCommand.CreateParameter();
+            parameter.ParameterName = argument.Name;
+            parameter.Value = argument.Value ?? DBNull.Value;
+            _dbCommand.Parameters.Add(parameter);
+        }
+        
+        try
+        {
+            return _dbCommand.ExecuteScalar();
+        }
+        catch (Exception ex)
+        {
+            throw new PetoncleException($"Error with the following query '{_dbCommand.CommandText}'", ex);
+        }
+    }
 }

@@ -22,4 +22,11 @@ internal static class QueryFactory
             return new DeleteSqlServer(pObject, obj);
         return null;
     }
+
+    public static TruncateBase Truncate(Connection connection, PObject pObject)
+    {
+        if (connection.DatabaseType == DatabaseType.SqlServer)
+            return new TruncateSqlServer(pObject);
+        return null;
+    }
 }

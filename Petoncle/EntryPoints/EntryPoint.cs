@@ -81,4 +81,30 @@ public abstract class EntryPoint
     
     #endregion
 
+    #region Truncate
+
+    public void Truncate<T>() => Truncate(typeof(T), null, null);
+
+    public void Truncate(string tableName) => Truncate(null, null, tableName);
+    
+    public void Truncate(string schemaName, string tableName) => Truncate(null, schemaName, tableName);
+
+    private void Truncate(Type type, string schemaName, string tableName)
+    {
+        if (tableName == null && type == typeof(object))
+            throw new PetoncleException($"You cannot call the {nameof(Truncate)} method with a dynamic type without a table name in argument");
+        
+        if (type == null && tableName == null)
+            throw new PetoncleException($"Provide a table name");
+        
+        Petoncle.ObjectManager.PrepareDbObject(type ?? typeof(object), schemaName, tableName, out PObject pObject);
+        TruncateBase truncateBase = QueryFactory.Truncate(Connection, pObject);
+        QueryBuilder queryBuilder = new(pObject);
+        truncateBase.Build(ref queryBuilder);
+        
+        using SqlClient sqlClient = new(Connection);
+        sqlClient.ExecuteNonQuery(queryBuilder);
+    }
+
+    #endregion
 }

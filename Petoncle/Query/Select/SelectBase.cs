@@ -8,10 +8,8 @@ internal abstract class SelectBase : QueryBase
     {
     }
 
-    public void SetWhereQuery(IWhereQuery whereExpressionQuery)
-    {
-        WhereQuery = whereExpressionQuery;
-    }
-    
+    public void SetWhereQuery(IWhereQuery whereExpressionQuery) => WhereQuery = whereExpressionQuery;
+
     // public abstract override void Build(ref QueryBuilder queryBuilder);
+    protected internal abstract void BuildCount(ref QueryBuilder queryBuilder);
 }
