@@ -9,18 +9,23 @@ namespace PetoncleDb;
 internal sealed class QueryBuilder
 {
     private readonly PObject _pObject;
+    private readonly DatabaseType _databaseType;
     private readonly StringBuilder _stringBuilder = new();
     private readonly SqlArguments _sqlArguments = new();
 
     internal IReadOnlyCollection<SqlArgument> Arguments => _sqlArguments;
 
-    internal QueryBuilder(PObject pObject) => _pObject = pObject;
+    internal QueryBuilder(PObject pObject, DatabaseType databaseType)
+    {
+        _pObject = pObject;
+        _databaseType = databaseType;
+    }
 
     public void Append(string sql) => _stringBuilder.Append(sql);
 
     public void Append(Expression expression)
     {
-        LambdaParser.Parse(expression, _pObject, this, null);
+        LambdaParser.Parse(_databaseType, expression, _pObject, this, null);
     }
     public string GetQuery() => _stringBuilder.ToString();
 

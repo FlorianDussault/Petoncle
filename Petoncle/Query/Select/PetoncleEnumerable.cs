@@ -24,7 +24,7 @@ internal sealed class PetoncleEnumerable<T> : IPetoncleEnumerable<T>
 
     public IEnumerator<T> GetEnumerator()
     {
-        QueryBuilder queryBuilder = new (_pObject);
+        QueryBuilder queryBuilder = new (_pObject, _connection.DatabaseType);
         _selectBase.Build(ref queryBuilder);
         using SqlClient sqlClient = new(_connection);
         using IDataReader dataReader = sqlClient.ExecuteQuery(queryBuilder);
@@ -78,7 +78,7 @@ internal sealed class PetoncleEnumerable<T> : IPetoncleEnumerable<T>
     {
         get
         {
-            QueryBuilder queryBuilder = new(_pObject);
+            QueryBuilder queryBuilder = new(_pObject, _connection.DatabaseType);
             _selectBase.BuildCount(ref queryBuilder);
             SqlClient sqlClient = new(_connection);
             return (int)sqlClient.ExecuteScalar(queryBuilder);

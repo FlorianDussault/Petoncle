@@ -81,7 +81,16 @@ public sealed class Petoncle
 
     #region Entry Point
     private DbEntryPoint _dbEntryPoint;
-    public static EntryPoint Db => Instance._dbEntryPoint;
+    public static EntryPoint Db
+    {
+        get
+        {
+            if (Instance == null || !Instance._isInitialized)
+                throw new PetoncleException("Petoncle is not Initialized");
+            return Instance._dbEntryPoint;
+        }
+    }
+
     #endregion
     
     

@@ -6,14 +6,16 @@ namespace PetoncleDb;
 
 internal class LambdaParser
 {
+    private readonly DatabaseType _databaseType;
     private Expression _expression;
     private readonly Type _type;
     private readonly object _object;
     private readonly PObject _tableDefinition;
     private readonly QueryBuilder _queryBuilder;
 
-    protected LambdaParser(Expression expression, PObject tableDefinition, QueryBuilder queryBuilder, object obj = null)
+    protected LambdaParser(DatabaseType databaseType, Expression expression, PObject tableDefinition, QueryBuilder queryBuilder, object obj = null)
     {
+        _databaseType = databaseType;
         _expression = expression;
         _tableDefinition = tableDefinition;
         _queryBuilder = queryBuilder;
@@ -27,13 +29,14 @@ internal class LambdaParser
     /// <summary>
     /// Parse an expression
     /// </summary>
+    /// <param name="databaseType"></param>
     /// <param name="expression">Expression</param>
     /// <param name="tableDefinition">Table Definition</param>
     /// <param name="queryBuilder">Query Builder</param>
     /// <param name="type"></param>
     /// <param name="obj"></param>
     // ReSharper disable once ObjectCreationAsStatement
-    internal static void Parse(Expression expression, PObject tableDefinition, QueryBuilder queryBuilder, Type type = null, object obj = null) => new LambdaParser(expression, tableDefinition, queryBuilder, obj).ParseExpression(expression);
+    internal static void Parse(DatabaseType databaseType, Expression expression, PObject tableDefinition, QueryBuilder queryBuilder, Type type = null, object obj = null) => new LambdaParser(databaseType, expression, tableDefinition, queryBuilder, obj).ParseExpression(expression);
 
     
     /// <summary>
@@ -148,7 +151,7 @@ internal class LambdaParser
         //     return;
         // }
 
-        if (expression.Expression.NodeType == ExpressionType.Parameter && expression.Member.DeclaringType == _tableDefinition.Type && _tableDefinition.GetColumn(expression.Member.Name) is { } columnDefinition)
+        if (expression.Expression is {NodeType: ExpressionType.Parameter} && expression.Member.DeclaringType == _tableDefinition.Type && _tableDefinition.GetColumn(expression.Member.Name) is { } columnDefinition)
         {
             _queryBuilder.Append($" {columnDefinition.SqlColumnName}");
         }
@@ -177,16 +180,19 @@ internal class LambdaParser
     /// <param name="expression">Expression</param>
     private void ParseMethodCall(MethodCallExpression expression)
     {
-        throw new NotImplementedException();
-        // LambdaFunctionParser lambdaFunctionParser;
-        // if (expression.Method.DeclaringType!.IsSubclassOf(typeof(LambdaFunctionParser)))
-        //     lambdaFunctionParser = (LambdaFunctionParser)Activator.CreateInstance(expression.Method.DeclaringType);
-        // else if (expression.Method.DeclaringType == typeof(FunctionExtensions))
-        //     lambdaFunctionParser = (LambdaFunctionParser)Activator.CreateInstance(typeof(Lf));
-        // else
+        LambdaFunctionParser lambdaFunctionParser;
+        if (expression.Method.DeclaringType!.IsSubclassOf(typeof(LambdaFunctionParser)))
+             lambdaFunctionParser = (LambdaFunctionParser)Activator.CreateInstance(expression.Method.DeclaringType);
+        else if (expression.Method.DeclaringType == typeof(PfHelper))
+            lambdaFunctionParser = (LambdaFunctionParser) Activator.CreateInstance(typeof(Pf));
+        else
+        {
+            _queryBuilder.RegisterArgumentAndAppend(Expression.Lambda(expression).Compile().DynamicInvoke());
+            return;
+        }
         //     lambdaFunctionParser  = (LambdaFunctionParser)Activator.CreateInstance(typeof(LzCSharpFunctions));
         //
-        // lambdaFunctionParser.Parse(expression, this, _queryBuilder);
+        lambdaFunctionParser.Parse(_databaseType, expression, this, _queryBuilder);
     }
 
     /// <summary>

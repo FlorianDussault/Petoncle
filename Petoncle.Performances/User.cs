@@ -20,6 +20,9 @@ public class User : DbObject
     
     [DbColumn, DbReadOnly]
     public bool Enabled { get; set; }
+
+    [DbColumn("create_date")]
+    public DateTime CreateDate { get; set; }
 }
 [LazyTable("users")]
 public class UserLazy : LazyBase

@@ -16,8 +16,14 @@ public abstract class EntryPoint
     #region Select
     public IPetoncleEnumerable<T> Select<T>() => Select<T>(null, null, null);
     public IPetoncleEnumerable<T> Select<T>(string tableName) => Select<T>(null, tableName, null);
+    public IPetoncleEnumerable<dynamic> Select(string tableName) => Select<dynamic>(null, tableName, null);
+
+
     public IPetoncleEnumerable<T> Select<T>(Expression<Func<T, bool>> where) => Select<T>(null, null, where);
     public IPetoncleEnumerable<T> Select<T>(string tableName, Expression<Func<T, bool>> where) => Select<T>(null, tableName, where);
+    
+    
+    
     private IPetoncleEnumerable<T> Select<T>(string schemaName, string tableName, Expression whereExpression)
     {
         // TODO: Check performances
@@ -49,7 +55,7 @@ public abstract class EntryPoint
             throw new PetoncleException($"Unknown object type: {typeof(T).FullName}");
         
         InsertBase insertBase = QueryFactory.Insert(Connection, pObject, obj);
-        QueryBuilder queryBuilder = new(pObject);
+        QueryBuilder queryBuilder = new(pObject, Connection.DatabaseType);
         insertBase.Build(ref queryBuilder);
         
         using SqlClient sqlClient = new(Connection);
@@ -72,7 +78,7 @@ public abstract class EntryPoint
             throw new PetoncleException($"Unknown object type: {typeof(T).FullName}");
         
         DeleteBase insertBase = QueryFactory.Delete(Connection, pObject, obj);
-        QueryBuilder queryBuilder = new(pObject);
+        QueryBuilder queryBuilder = new(pObject, Connection.DatabaseType);
         insertBase.Build(ref queryBuilder);
         
         using SqlClient sqlClient = new(Connection);
@@ -99,7 +105,7 @@ public abstract class EntryPoint
         
         Petoncle.ObjectManager.PrepareDbObject(type ?? typeof(object), schemaName, tableName, out PObject pObject);
         TruncateBase truncateBase = QueryFactory.Truncate(Connection, pObject);
-        QueryBuilder queryBuilder = new(pObject);
+        QueryBuilder queryBuilder = new(pObject, Connection.DatabaseType);
         truncateBase.Build(ref queryBuilder);
         
         using SqlClient sqlClient = new(Connection);
