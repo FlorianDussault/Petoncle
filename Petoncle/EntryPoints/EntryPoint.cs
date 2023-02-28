@@ -65,9 +65,10 @@ public abstract class EntryPoint
 
     #region Delete
 
-    public int Delete<T>() => Delete<T>(null, null, null);
+    public int Delete<T>(Expression<Func<T, bool>> expression) => Delete<T>(null, null, null, expression);
+    public int Delete<T>() => Delete<T>(null, null, null, null);
 
-    private int Delete<T>(string schemaName, string tableName, object obj)
+    private int Delete<T>(string schemaName, string tableName, object obj, Expression expression)
     {
         Type type = typeof(T);
         if (tableName == null && type == typeof(object))
@@ -79,6 +80,7 @@ public abstract class EntryPoint
         
         DeleteBase insertBase = QueryFactory.Delete(Connection, pObject, obj);
         QueryBuilder queryBuilder = new(pObject, Connection.DatabaseType);
+        if (expression != null) insertBase.SetWhereQuery(new WhereExpressionQuery(expression));
         insertBase.Build(ref queryBuilder);
         
         using SqlClient sqlClient = new(Connection);

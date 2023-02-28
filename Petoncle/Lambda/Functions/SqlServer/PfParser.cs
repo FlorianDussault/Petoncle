@@ -2,9 +2,9 @@
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace PetoncleDb;
+namespace PetoncleDb.SqlServer;
 
-public partial class Pf : LambdaFunctionParser
+public class PfParser : LambdaFunctionParser
 {
     internal override void Parse(DatabaseType databaseType, MethodCallExpression expression, LambdaParser lambdaParser, QueryBuilder queryBuilder)
     {
@@ -13,6 +13,8 @@ public partial class Pf : LambdaFunctionParser
             throw new NotImplementedException($"Function 'Parse{expression.Method.Name}' is missing");
         method.Invoke(this, new object[] {databaseType, expression, lambdaParser, queryBuilder});
     }
+    
+    #region Global
     
     private void ParseLike(DatabaseType databaseType, MethodCallExpression expression, LambdaParser lambdaParser, QueryBuilder queryBuilder)
     {
@@ -27,6 +29,8 @@ public partial class Pf : LambdaFunctionParser
         queryBuilder.Append(" NOT LIKE ");
         lambdaParser.ParseExpression(expression.Arguments[1]);
     }
+    
+    #endregion
     
     #region Date
 
@@ -91,10 +95,9 @@ public partial class Pf : LambdaFunctionParser
     }
 
     #endregion
-}
-
-public partial class Pf
-{
+    
+    #region String
+    
     private void ParseAscii(DatabaseType databaseType, MethodCallExpression expression, LambdaParser lambdaParser, QueryBuilder queryBuilder)
     {
         queryBuilder.Append(" ASCII(");
@@ -124,7 +127,7 @@ public partial class Pf
         queryBuilder.Append(")");
     }
     
-    private void ParseConcat(MethodCallExpression expression, LambdaParser lambdaParser, QueryBuilder queryBuilder)
+    private void ParseConcat(DatabaseType databaseType, MethodCallExpression expression, LambdaParser lambdaParser, QueryBuilder queryBuilder)
     {
         queryBuilder.Append(" CONCAT(");
         for (int i = 0; i < expression.Arguments.Count; i++)
@@ -137,7 +140,7 @@ public partial class Pf
         queryBuilder.Append(") ");
     }
     
-    private void ParseConcatWs(MethodCallExpression expression, LambdaParser lambdaParser, QueryBuilder queryBuilder)
+    private void ParseConcatWs(DatabaseType databaseType, MethodCallExpression expression, LambdaParser lambdaParser, QueryBuilder queryBuilder)
     {
         queryBuilder.Append(" CONCAT_WS(");
         for (int i = 0; i < expression.Arguments.Count; i++)
@@ -150,24 +153,25 @@ public partial class Pf
         queryBuilder.Append(") ");
     }
     
-    private void ParseDataLength(MethodCallExpression expression, LambdaParser lambdaParser, QueryBuilder queryBuilder)
+    private void ParseDataLength(DatabaseType databaseType, MethodCallExpression expression, LambdaParser lambdaParser, QueryBuilder queryBuilder)
     {
         queryBuilder.Append(" DATALENGTH(");
         queryBuilder.Append(expression.Arguments[0]);
         queryBuilder.Append(") ");
     }
     
-    private void ParseLower(MethodCallExpression expression, LambdaParser lambdaParser, QueryBuilder queryBuilder)
+    private void ParseLower(DatabaseType databaseType, MethodCallExpression expression, LambdaParser lambdaParser, QueryBuilder queryBuilder)
     {
         queryBuilder.Append(" LOWER(");
         queryBuilder.Append(expression.Arguments[0]);
         queryBuilder.Append(") ");
     }
     
-    private void ParseUpper(MethodCallExpression expression, LambdaParser lambdaParser, QueryBuilder queryBuilder)
+    private void ParseUpper(DatabaseType databaseType, MethodCallExpression expression, LambdaParser lambdaParser, QueryBuilder queryBuilder)
     {
         queryBuilder.Append(" UPPER(");
         queryBuilder.Append(expression.Arguments[0]);
         queryBuilder.Append(") ");
     }
+    #endregion
 }

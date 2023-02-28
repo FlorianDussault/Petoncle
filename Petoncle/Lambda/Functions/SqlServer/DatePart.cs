@@ -1,4 +1,4 @@
-namespace PetoncleDb;
+namespace PetoncleDb.SqlServer;
 
 public enum DatePart
 {

@@ -1,12 +1,15 @@
 ﻿using System;
 
-namespace PetoncleDb;
+namespace PetoncleDb.SqlServer;
 
 public static class PfHelper
 {
+    #region Global
     public static bool Like(this object column, string value) => throw new PetoncleException($"Use {nameof(Like)} function in expression");
-
+    
     public static bool NotLike(this object column, string value) => throw new PetoncleException($"Use {nameof(NotLike)} function in expression");
+    
+    #endregion
     
     #region Date
     
@@ -28,10 +31,6 @@ public static class PfHelper
     public static string Char(this object column) => throw new PetoncleException($"Use {nameof(Char)} function in expression");
     
     public static int? CharIndex(this object expression, string search, int? startLocation = null)=> throw new PetoncleException($"Use {nameof(CharIndex)} function in expression");
-    
-    public static string Concat(params string[] values)=> throw new PetoncleException($"Use {nameof(Concat)} function in expression");
-    
-    public static string ConcatWs(string separator, params string[] values) => throw new PetoncleException($"Use {nameof(ConcatWs)} function in expression");
     
     public static int? DataLength(this object column) => throw new PetoncleException($"Use {nameof(DataLength)} function in expression");
     

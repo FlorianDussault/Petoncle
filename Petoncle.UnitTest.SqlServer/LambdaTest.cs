@@ -1,4 +1,6 @@
 ﻿using PetoncleUT.SqlServer.Objects;
+using PetoncleDb.SqlServer;
+
 
 namespace PetoncleUT.SqlServer;
 
@@ -20,6 +22,7 @@ public class LambdaTest : General
         _nbRows = Petoncle.Db.Select<User>().Count;
     }
 
+    #region Global
     [Test]
     public void IsNull()
     {
@@ -32,6 +35,14 @@ public class LambdaTest : General
     {
         Assert.Throws<PetoncleException>(() => { "HELLO".Like("ok"); });
         List<User> list = Petoncle.Db.Select<User>(u => u.FirstName.Like("%ob")).ToList();
+        Assert.That(list.Count, Is.EqualTo(2));
+        foreach (User user in list)
+        {
+            Assert.That(user.FirstName.EndsWith("ob"), Is.True);
+        }
+        
+        Assert.Throws<PetoncleException>(() => { Pf.Like("HELLO","ok"); });
+        list = Petoncle.Db.Select<User>(u => Pf.Like(u.FirstName,"%ob")).ToList();
         Assert.That(list.Count, Is.EqualTo(2));
         foreach (User user in list)
         {
@@ -50,6 +61,8 @@ public class LambdaTest : General
             Assert.That(!user.FirstName.EndsWith("ob"), Is.True);
         }
     }
+    
+    #endregion
     
     #region Date
     [Test]
@@ -104,6 +117,11 @@ public class LambdaTest : General
         List<User> list = Petoncle.Db.Select<User>(u => u.FirstName.Ascii() == 74).ToList();
         Assert.That(list.Count, Is.EqualTo(1));
         Assert.That(list[0].Age == 18);
+        
+        Assert.Throws<PetoncleException>(() => { Pf.Ascii(""); });
+        list = Petoncle.Db.Select<User>(u => Pf.Ascii(u.FirstName) == 74).ToList();
+        Assert.That(list.Count, Is.EqualTo(1));
+        Assert.That(list[0].Age == 18);
     }
     
     [Test]
@@ -123,6 +141,49 @@ public class LambdaTest : General
         Assert.That(list.Count, Is.EqualTo(1));
         Assert.That(list[0].Age == 18);
     }
+
+    [Test]
+    public void Function_Concat()
+    {
+        Assert.Throws<PetoncleException>(() => { Pf.Concat(""); });
+        List<User> list = Petoncle.Db.Select<User>(u => u.FirstName == Pf.Concat("Jo", "hn")).ToList();
+        Assert.That(list.Count, Is.EqualTo(1));
+        Assert.That(list[0].Age == 18);
+    }
     
+    [Test]
+    public void Function_ConcatWs()
+    {
+        Assert.Throws<PetoncleException>(() => { Pf.ConcatWs(""); });
+        List<User> list = Petoncle.Db.Select<User>(u => u.FirstName == Pf.ConcatWs("o","J", "hn")).ToList();
+        Assert.That(list.Count, Is.EqualTo(1));
+        Assert.That(list[0].Age == 18);
+    }
+
+    [Test]
+    public void Function_DataLength()
+    {
+        Assert.Throws<PetoncleException>(() => { Pf.DataLength(""); });
+        List<User> list = Petoncle.Db.Select<User>(u => u.FirstName.DataLength() == 8 && u.LastName == "Doe").ToList();
+        Assert.That(list.Count, Is.EqualTo(1));
+        Assert.That(list[0].Age == 18);
+    }
+
+    [Test]
+    public void Function_Lower()
+    {
+        Assert.Throws<PetoncleException>(() => { "".Lower(); });
+        List<User> list = Petoncle.Db.Select<User>(u => "P".Lower().Ascii() == 112).ToList();
+        Assert.That(list.Count, Is.EqualTo(5));
+    }
+
+    [Test]
+    public void Function_Upper()
+    {
+        Assert.Throws<PetoncleException>(() => { "".Upper(); });
+        List<User> list = Petoncle.Db.Select<User>(u => "p".Upper().Ascii() == 80).ToList();
+        Assert.That(list.Count, Is.EqualTo(5));
+    }
+
     #endregion
 }

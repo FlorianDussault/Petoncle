@@ -183,8 +183,8 @@ internal class LambdaParser
         LambdaFunctionParser lambdaFunctionParser;
         if (expression.Method.DeclaringType!.IsSubclassOf(typeof(LambdaFunctionParser)))
              lambdaFunctionParser = (LambdaFunctionParser)Activator.CreateInstance(expression.Method.DeclaringType);
-        else if (expression.Method.DeclaringType == typeof(PfHelper))
-            lambdaFunctionParser = (LambdaFunctionParser) Activator.CreateInstance(typeof(Pf));
+        else if (expression.Method.DeclaringType == typeof(SqlServer.Pf) || expression.Method.DeclaringType == typeof(SqlServer.PfHelper))
+            lambdaFunctionParser = (LambdaFunctionParser) Activator.CreateInstance(typeof(SqlServer.PfParser));
         else
         {
             _queryBuilder.RegisterArgumentAndAppend(Expression.Lambda(expression).Compile().DynamicInvoke());
