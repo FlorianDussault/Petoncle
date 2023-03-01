@@ -1,6 +1,5 @@
 using System;
 using System.Linq.Expressions;
-using System.Reflection;
 
 namespace PetoncleDb;
 
@@ -67,6 +66,38 @@ public abstract class EntryPoint
         return sqlClient.ExecuteNonQuery(queryBuilder);
     }
     #endregion
+    
+    #region Update
+
+    public int Update(object obj) => Update(obj.GetType(), null, null, obj, null, null);
+    public int Update(string tableName, object obj) => Update(obj.GetType(), null, tableName, obj, null, null);
+    public int Update(string schemaName, string tableName, object obj) => Update(obj.GetType(), schemaName, tableName, obj, null, null);
+    public int Update<T>(object obj, Expression<Func<T, bool>> whereExpression) => Update(obj.GetType(), null, null, obj, whereExpression, null);
+    public int Update<T>(string tableName, object obj, Expression<Func<T, bool>> whereExpression) => Update(obj.GetType(), null, tableName, obj, whereExpression, null);
+    public int Update<T>(string schemaName, string tableName, object obj, Expression<Func<T, bool>> whereExpression) => Update(obj.GetType(), schemaName, tableName, obj, whereExpression, null);
+    
+    public int Update<T>(T obj, Sql whereSql) => Update(obj.GetType(), null, null, obj, null, whereSql);
+    public int Update<T>(string tableName, T obj,  Sql whereSql) => Update(obj.GetType(), null, tableName, obj, null, whereSql);
+    public int Update<T>(string schema, string tableName, T obj,  Sql whereSql) => Update(obj.GetType(), schema, tableName, obj, null, whereSql);
+    private int Update(Type type, string schemaName, string tableName, object obj, Expression whereExpression, Sql whereSql)
+    {
+        if (tableName == null && type == typeof(object))
+            throw new PetoncleException($"You cannot call the {nameof(Update)} method with a dynamic type without a table name in argument");
+        
+        Petoncle.ObjectManager.PrepareDbObject(type, schemaName, tableName, out PObject pObject);
+        pObject ??= new PObject(schemaName, tableName, null);
+        
+        UpdateBase updateBase = QueryFactory.Update(Connection, pObject, obj);
+        QueryBuilder queryBuilder = new(pObject, Connection.DatabaseType);
+        
+        if (whereExpression != null) updateBase.SetWhereQuery(new WhereExpressionQuery(whereExpression));
+        else if (whereSql != null) updateBase.SetWhereQuery(new WhereSqlQuery(whereSql));
+        updateBase.Build(ref queryBuilder);
+        
+        using SqlClient sqlClient = new(Connection);
+        return sqlClient.ExecuteNonQuery(queryBuilder);
+    }
+    #endregion
 
     #region Delete
     public int Delete<T>() => Delete(typeof(T), null, null, null, null, null);
@@ -128,35 +159,4 @@ public abstract class EntryPoint
     }
 
     #endregion
-}
-
-public class Sql
-{
-    private string Query;
-    private object Args;
-
-    public Sql(string query)
-    {
-        Query = query;
-    }
-    
-    public Sql(string query, object args)
-    {
-        Query = query;
-        Args = args;
-    }
-
-    internal void Append(QueryBuilder queryBuilder)
-    {
-        string query = Query;
-
-        foreach (PropertyInfo propertyInfo in Args.GetType().GetProperties())
-        {
-            string propertyName = $"@{propertyInfo.Name}";
-            string newName = queryBuilder.RegisterArgument(propertyInfo.GetValue(Args));
-            query = query.Replace(propertyName, newName);
-            queryBuilder.Append(query);
-        }
-
-    }
 }

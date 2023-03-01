@@ -10,7 +10,7 @@ public class SelectTest : General
     {
         InitializePetoncle();
         Petoncle.Db.Truncate<User>();
-        Petoncle.Db.Insert(new User {FirstName = "Bob", LastName = "Sponge", Age = 10});
+        Petoncle.Db.Insert(new User {FirstName = "Bob", LastName = "Sponge", Age = 11});
         Petoncle.Db.Insert(new User {FirstName = "John", LastName = "Doe", Age = 10});
         Petoncle.Db.Insert(new User {LastName = "Ali", Age = 22});
     }
@@ -60,10 +60,23 @@ public class SelectTest : General
     }
 
     [Test]
+    public void SelectWhereExpression()
+    {
+        List<User> list = Petoncle.Db.Select<User>(u=>u.Age == 22).OrderBy(u=>u.Age).ToList();
+        
+        Assert.That(list.Count, Is.EqualTo(1));
+        Assert.That(list[0].LastName, Is.EqualTo("Ali"));
+    }
+    
+    [Test]
     public void SelectWhereSql()
     {
         List<dynamic> list = Petoncle.Db.Select<dynamic>("users", new Sql("Age = @Age", new {Age = 22})).ToList();
+        var agg = list.Select(o => o.Age == 10);
+        list = Petoncle.Db.Select<dynamic>(u=>u.a == 1).ToList();
         Assert.That(list.Count, Is.EqualTo(1));
         Assert.That(list[0].lastname, Is.EqualTo("Ali"));
     }
+
+  
 }

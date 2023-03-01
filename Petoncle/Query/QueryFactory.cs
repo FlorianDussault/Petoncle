@@ -16,6 +16,13 @@ internal static class QueryFactory
         return null;
     }
     
+    public static UpdateBase Update(Connection connection, PObject pObject, object obj)
+    {
+        if (connection.DatabaseType == DatabaseType.SqlServer)
+            return new UpdateSqlServer(pObject, obj);
+        return null;
+    }
+    
     public static DeleteBase Delete(Connection connection, PObject pObject, object obj)
     {
         if (connection.DatabaseType == DatabaseType.SqlServer)
