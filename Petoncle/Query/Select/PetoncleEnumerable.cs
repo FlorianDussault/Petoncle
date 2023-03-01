@@ -13,13 +13,15 @@ internal sealed class PetoncleEnumerable<T> : IPetoncleEnumerable<T>
     private readonly PObject _pObject;
     private readonly SelectBase _selectBase;
 
-    public PetoncleEnumerable(Connection connection, PObject pObject, Expression whereExpression)
+    public PetoncleEnumerable(Connection connection, PObject pObject, Expression whereExpression, Sql whereSql)
     {
         _connection = connection;
         _pObject = pObject;
         _selectBase = QueryFactory.Select(connection, _pObject);
         if (whereExpression != null)
             _selectBase.SetWhereQuery(new WhereExpressionQuery(whereExpression));
+        else if (whereSql != null)
+            _selectBase.SetWhereQuery(new WhereSqlQuery(whereSql));
     }
 
     public IEnumerator<T> GetEnumerator()

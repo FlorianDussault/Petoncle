@@ -27,6 +27,12 @@ internal sealed class QueryBuilder
     {
         LambdaParser.Parse(_databaseType, expression, _pObject, this, null);
     }
+    
+    public void Append(Sql sql)
+    {
+        sql.Append( this);
+    }
+    
     public string GetQuery() => _stringBuilder.ToString();
 
     public void RemoveLastChar() => _stringBuilder.Length--;

@@ -1,5 +1,6 @@
 using System;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace PetoncleDb;
 
@@ -14,17 +15,21 @@ public abstract class EntryPoint
     }
     
     #region Select
-    public IPetoncleEnumerable<T> Select<T>() => Select<T>(null, null, null);
-    public IPetoncleEnumerable<T> Select<T>(string tableName) => Select<T>(null, tableName, null);
-    public IPetoncleEnumerable<dynamic> Select(string tableName) => Select<dynamic>(null, tableName, null);
+    public IPetoncleEnumerable<T> Select<T>() => Select<T>(null, null, null, null);
+    public IPetoncleEnumerable<T> Select<T>(string tableName) => Select<T>(null, tableName, null, null);
+    public IPetoncleEnumerable<dynamic> Select(string tableName) => Select<dynamic>(null, tableName, null, null);
 
+    public IPetoncleEnumerable<T> Select<T>(Expression<Func<T, bool>> where) => Select<T>(null, null, where, null);
 
-    public IPetoncleEnumerable<T> Select<T>(Expression<Func<T, bool>> where) => Select<T>(null, null, where);
-    public IPetoncleEnumerable<T> Select<T>(string tableName, Expression<Func<T, bool>> where) => Select<T>(null, tableName, where);
+    public IPetoncleEnumerable<T> Select<T>(Sql whereSql) => Select<T>(null, null, null, whereSql);
+
+    public IPetoncleEnumerable<T> Select<T>(string tableName, Expression<Func<T, bool>> where) => Select<T>(null, tableName, where, null);
     
+    public IPetoncleEnumerable<T> Select<T>(string tableName, Sql whereSql) => Select<T>(null, tableName, null, whereSql);
     
+    public IPetoncleEnumerable<T> Select<T>(string schemaName, string tableName, Sql whereSql) => Select<T>(schemaName, tableName, null, whereSql);
     
-    private IPetoncleEnumerable<T> Select<T>(string schemaName, string tableName, Expression whereExpression)
+    private IPetoncleEnumerable<T> Select<T>(string schemaName, string tableName, Expression whereExpression, Sql whereSql)
     {
         // TODO: Check performances
         Type type = typeof(T);
@@ -36,7 +41,7 @@ public abstract class EntryPoint
         if (pObject == null)
             throw new PetoncleException($"Unknown object type: {typeof(T).FullName}");
         
-        return new PetoncleEnumerable<T>(Connection, pObject, whereExpression);
+        return new PetoncleEnumerable<T>(Connection, pObject, whereExpression, whereSql);
     }
     #endregion
 
@@ -64,23 +69,31 @@ public abstract class EntryPoint
     #endregion
 
     #region Delete
+    public int Delete<T>() => Delete(typeof(T), null, null, null, null, null);
+    public int Delete(string tableName) => Delete(null, null, tableName, null, null, null);
+    public int Delete(string schemaName, string tableName) => Delete(null, schemaName, tableName, null, null, null);
+    public int Delete(object obj) => Delete(obj.GetType(), null, null, obj, null, null);
+    public int Delete<T>(Expression<Func<T, bool>> whereExpression) => Delete(typeof(T), null, null, null, whereExpression, null);
+    public int Delete<T>(string tableName, Expression<Func<T, bool>> whereExpression) => Delete(typeof(T), null, tableName, null, whereExpression, null);
+    public int Delete<T>(string schemaName, string tableName, Expression<Func<T, bool>> whereExpression) => Delete(typeof(T), schemaName, tableName,null, whereExpression, null);
+    public int Delete<T>(Sql whereSql) => Delete(typeof(T), null, null, null, null, whereSql);
+    public int Delete(string tableName, Sql whereSql) => Delete(null, null, tableName, null, null, whereSql);
+    public int Delete(string schemaName, string tableName, Sql whereSql) => Delete(null, schemaName, tableName, null, null, whereSql);
 
-    public int Delete<T>(Expression<Func<T, bool>> expression) => Delete<T>(null, null, null, expression);
-    public int Delete<T>() => Delete<T>(null, null, null, null);
-
-    private int Delete<T>(string schemaName, string tableName, object obj, Expression expression)
+    private int Delete(Type type, string schemaName, string tableName, object obj, Expression whereExpression, Sql whereSql)
     {
-        Type type = typeof(T);
         if (tableName == null && type == typeof(object))
             throw new PetoncleException($"You cannot call the {nameof(Delete)} method with a dynamic type without a table name in argument");
         
-        Petoncle.ObjectManager.PrepareDbObject(typeof(T), schemaName, tableName, out PObject pObject);
-        if (pObject == null)
-            throw new PetoncleException($"Unknown object type: {typeof(T).FullName}");
+        Petoncle.ObjectManager.PrepareDbObject(type, schemaName, tableName, out PObject pObject);
+        pObject ??= new PObject(schemaName, tableName, null);
+        //     throw new PetoncleException($"Unknown object type: {type.FullName}");
         
         DeleteBase insertBase = QueryFactory.Delete(Connection, pObject, obj);
         QueryBuilder queryBuilder = new(pObject, Connection.DatabaseType);
-        if (expression != null) insertBase.SetWhereQuery(new WhereExpressionQuery(expression));
+        
+        if (whereExpression != null) insertBase.SetWhereQuery(new WhereExpressionQuery(whereExpression));
+        else if (whereSql != null) insertBase.SetWhereQuery(new WhereSqlQuery(whereSql));
         insertBase.Build(ref queryBuilder);
         
         using SqlClient sqlClient = new(Connection);
@@ -115,4 +128,35 @@ public abstract class EntryPoint
     }
 
     #endregion
+}
+
+public class Sql
+{
+    private string Query;
+    private object Args;
+
+    public Sql(string query)
+    {
+        Query = query;
+    }
+    
+    public Sql(string query, object args)
+    {
+        Query = query;
+        Args = args;
+    }
+
+    internal void Append(QueryBuilder queryBuilder)
+    {
+        string query = Query;
+
+        foreach (PropertyInfo propertyInfo in Args.GetType().GetProperties())
+        {
+            string propertyName = $"@{propertyInfo.Name}";
+            string newName = queryBuilder.RegisterArgument(propertyInfo.GetValue(Args));
+            query = query.Replace(propertyName, newName);
+            queryBuilder.Append(query);
+        }
+
+    }
 }

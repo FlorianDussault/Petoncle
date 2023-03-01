@@ -58,6 +58,12 @@ public class SelectTest : General
         Assert.That(Petoncle.Db.Select<User>().Count, Is.EqualTo(3));
         Assert.That(Petoncle.Db.Select("users").Count, Is.EqualTo(3));
     }
-    
 
+    [Test]
+    public void SelectWhereSql()
+    {
+        List<dynamic> list = Petoncle.Db.Select<dynamic>("users", new Sql("Age = @Age", new {Age = 22})).ToList();
+        Assert.That(list.Count, Is.EqualTo(1));
+        Assert.That(list[0].lastname, Is.EqualTo("Ali"));
+    }
 }

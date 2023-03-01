@@ -81,13 +81,13 @@ internal sealed class PObject
         
         if (schemaName != null)
             FullTableName = "[" + schemaName + "].[";
-        else if (objectDefinition.Table?.SchemaName != null)
+        else if (objectDefinition?.Table?.SchemaName != null)
             FullTableName = "[" + objectDefinition.Table.SchemaName + "].[";
         else FullTableName = "[";
 
         if (tableName != null)
             FullTableName += tableName + "]";
-        else FullTableName += objectDefinition.Table?.TableName + "]";
+        else FullTableName += objectDefinition?.Table?.TableName + "]";
     }
 
     public ColumnDefinition GetColumn(string memberName)
