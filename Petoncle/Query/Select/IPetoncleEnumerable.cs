@@ -12,4 +12,5 @@ public interface IPetoncleEnumerable<T> : IEnumerable<T> {
     IPetoncleEnumerable<T> OrderByDesc(Expression<Func<T, object>> orderByExpression);
     IPetoncleEnumerable<T> OrderByAsc(params string[] columns);
     IPetoncleEnumerable<T> OrderByDesc(params string[] columns);
+    IPetoncleEnumerable<T> Top(int top);
 }

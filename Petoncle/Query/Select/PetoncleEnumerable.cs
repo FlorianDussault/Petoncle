@@ -112,4 +112,10 @@ internal sealed class PetoncleEnumerable<T> : IPetoncleEnumerable<T>
             _selectBase.SetOrderBy(new OrderBySqlQuery(column, OrderByDirection.Desc));
         return this;
     }
+
+    public IPetoncleEnumerable<T> Top(int top)
+    {
+        _selectBase.SetTop(new TopQuery(top));
+        return this;
+    }
 }

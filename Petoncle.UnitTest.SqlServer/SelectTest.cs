@@ -110,4 +110,13 @@ public class SelectTest : General
         Assert.That(list[1].Age, Is.EqualTo(11));
         Assert.That(list[2].Age, Is.EqualTo(10));
     }
+
+    [Test]
+    public void SelectTop()
+    {
+        List<User> list = Petoncle.Db.Select<User>(u => u.Age < 100).OrderByDesc("age").Top(2).ToList();
+        Assert.That(list.Count, Is.EqualTo(2));
+        Assert.That(list[0].Age, Is.EqualTo(22));
+        Assert.That(list[1].Age, Is.EqualTo(11));
+    }
 }

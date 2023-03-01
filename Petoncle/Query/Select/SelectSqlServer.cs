@@ -14,6 +14,10 @@ internal class SelectSqlServer : SelectBase
     {
         queryBuilder.Append("SELECT ");
 
+        #region TOP
+        TopQuery?.Build(ref queryBuilder);
+        #endregion
+        
         #region Columns
         if (PObject.ObjectType == ObjectType.Dynamic)
         {

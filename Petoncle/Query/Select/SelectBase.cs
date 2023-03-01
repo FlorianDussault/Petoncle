@@ -8,6 +8,8 @@ internal abstract class SelectBase : QueryBase
     protected IWhereQuery WhereQuery { get; private set; }
     protected IList<IOrderByQuery> OrderByQueries { get; private set; } = new List<IOrderByQuery>();
     
+    protected TopQuery TopQuery { get; private set; }
+    
     protected SelectBase(PObject pObject) : base(pObject)
     {
     }
@@ -17,4 +19,9 @@ internal abstract class SelectBase : QueryBase
     public void SetOrderBy(IOrderByQuery orderByQuery) => OrderByQueries.Add(orderByQuery);
 
     protected internal abstract void BuildCount(ref QueryBuilder queryBuilder);
+
+    public void SetTop(TopQuery topQuery)
+    {
+        TopQuery = topQuery;
+    }
 }
