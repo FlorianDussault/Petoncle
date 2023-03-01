@@ -86,4 +86,30 @@ internal sealed class PetoncleEnumerable<T> : IPetoncleEnumerable<T>
             return (int)sqlClient.ExecuteScalar(queryBuilder);
         }
     }
+
+    public IPetoncleEnumerable<T> OrderByAsc(Expression<Func<T, object>> orderByExpression)
+    {
+        _selectBase.SetOrderBy(new OrderByExpressionQuery(orderByExpression, OrderByDirection.Asc));
+        return this;
+    }
+
+    public IPetoncleEnumerable<T> OrderByDesc(Expression<Func<T, object>> orderByExpression)
+    {
+        _selectBase.SetOrderBy(new OrderByExpressionQuery(orderByExpression, OrderByDirection.Desc));
+        return this;
+    }
+    
+    public IPetoncleEnumerable<T> OrderByAsc(params string[] columns)
+    {
+        foreach (string column in columns)
+            _selectBase.SetOrderBy(new OrderBySqlQuery(column, OrderByDirection.Asc));
+        return this;
+    }
+
+    public IPetoncleEnumerable<T> OrderByDesc(params string[] columns)
+    {
+        foreach (string column in columns)
+            _selectBase.SetOrderBy(new OrderBySqlQuery(column, OrderByDirection.Desc));
+        return this;
+    }
 }

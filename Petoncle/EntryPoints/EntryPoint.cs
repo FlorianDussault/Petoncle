@@ -19,7 +19,7 @@ public abstract class EntryPoint
     public IPetoncleEnumerable<dynamic> Select(string tableName) => Select<dynamic>(null, tableName, null, null);
 
     public IPetoncleEnumerable<T> Select<T>(Expression<Func<T, bool>> where) => Select<T>(null, null, where, null);
-
+    
     public IPetoncleEnumerable<T> Select<T>(Sql whereSql) => Select<T>(null, null, null, whereSql);
 
     public IPetoncleEnumerable<T> Select<T>(string tableName, Expression<Func<T, bool>> where) => Select<T>(null, tableName, where, null);

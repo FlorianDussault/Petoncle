@@ -63,7 +63,6 @@ public class SelectTest : General
     public void SelectWhereExpression()
     {
         List<User> list = Petoncle.Db.Select<User>(u=>u.Age == 22).OrderBy(u=>u.Age).ToList();
-        
         Assert.That(list.Count, Is.EqualTo(1));
         Assert.That(list[0].LastName, Is.EqualTo("Ali"));
     }
@@ -72,11 +71,43 @@ public class SelectTest : General
     public void SelectWhereSql()
     {
         List<dynamic> list = Petoncle.Db.Select<dynamic>("users", new Sql("Age = @Age", new {Age = 22})).ToList();
-        var agg = list.Select(o => o.Age == 10);
-        list = Petoncle.Db.Select<dynamic>(u=>u.a == 1).ToList();
         Assert.That(list.Count, Is.EqualTo(1));
         Assert.That(list[0].lastname, Is.EqualTo("Ali"));
     }
 
-  
+    [Test]
+    public void SelectOrderBy()
+    {
+        List<User> list = Petoncle.Db.Select<User>(u => u.Age < 100).OrderByAsc(u => u.Age).ToList();
+        Assert.That(list[0].Age, Is.EqualTo(10));
+        Assert.That(list[1].Age, Is.EqualTo(11));
+        Assert.That(list[2].Age, Is.EqualTo(22));
+    }
+    
+    [Test]
+    public void SelectOrderByDesc()
+    {
+        List<User> list = Petoncle.Db.Select<User>(u => u.Age < 100).OrderByDesc(u => u.Age).ToList();
+        Assert.That(list[0].Age, Is.EqualTo(22));
+        Assert.That(list[1].Age, Is.EqualTo(11));
+        Assert.That(list[2].Age, Is.EqualTo(10));
+    }
+    
+    [Test]
+    public void SelectOrderBySql()
+    {
+        List<User> list = Petoncle.Db.Select<User>(u => u.Age < 100).OrderByAsc("age", "firstname").ToList();
+        Assert.That(list[0].Age, Is.EqualTo(10));
+        Assert.That(list[1].Age, Is.EqualTo(11));
+        Assert.That(list[2].Age, Is.EqualTo(22));
+    }
+    
+    [Test]
+    public void SelectOrderByDescSql()
+    {
+        List<User> list = Petoncle.Db.Select<User>(u => u.Age < 100).OrderByDesc("age").ToList();
+        Assert.That(list[0].Age, Is.EqualTo(22));
+        Assert.That(list[1].Age, Is.EqualTo(11));
+        Assert.That(list[2].Age, Is.EqualTo(10));
+    }
 }

@@ -4,6 +4,11 @@ internal abstract class QueryBase : IQuery
 {
     protected readonly PObject PObject;
 
+    protected QueryBase()
+    {
+        
+    }
+    
     protected QueryBase(PObject pObject)
     {
         PObject = pObject;

@@ -1,8 +1,12 @@
-﻿namespace PetoncleDb;
+﻿using System.Collections;
+using System.Collections.Generic;
+
+namespace PetoncleDb;
 
 internal abstract class SelectBase : QueryBase
 {
     protected IWhereQuery WhereQuery { get; private set; }
+    protected IList<IOrderByQuery> OrderByQueries { get; private set; } = new List<IOrderByQuery>();
     
     protected SelectBase(PObject pObject) : base(pObject)
     {
@@ -10,6 +14,7 @@ internal abstract class SelectBase : QueryBase
 
     public void SetWhereQuery(IWhereQuery whereExpressionQuery) => WhereQuery = whereExpressionQuery;
 
-    // public abstract override void Build(ref QueryBuilder queryBuilder);
+    public void SetOrderBy(IOrderByQuery orderByQuery) => OrderByQueries.Add(orderByQuery);
+
     protected internal abstract void BuildCount(ref QueryBuilder queryBuilder);
 }

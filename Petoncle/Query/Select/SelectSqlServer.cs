@@ -1,4 +1,6 @@
-﻿namespace PetoncleDb;
+﻿using Microsoft.IdentityModel.Tokens;
+
+namespace PetoncleDb;
 
 internal class SelectSqlServer : SelectBase
 {
@@ -25,8 +27,6 @@ internal class SelectSqlServer : SelectBase
             }
             queryBuilder.RemoveLastChar();
         }
-
-       
         #endregion
         
         queryBuilder.Append(" FROM " + PObject.FullTableName);
@@ -39,6 +39,19 @@ internal class SelectSqlServer : SelectBase
         }
         #endregion
         
+        #region ORDER BY
+
+        if (OrderByQueries.Count > 0)
+        {
+            queryBuilder.Append(" ORDER BY ");
+            for (int i = 0; i < OrderByQueries.Count; i++)
+            {
+                OrderByQueries[i].Build(ref queryBuilder);
+                queryBuilder.Append(",");
+            }
+            queryBuilder.RemoveLastChar();
+        }        
+        #endregion
     }
 
 
