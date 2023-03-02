@@ -35,6 +35,48 @@ public class PfParser : LambdaFunctionParser
         lambdaParser.ParseExpression(expression.Arguments[0]);
         queryBuilder.Append(" AS " + expression.Arguments[1]);
     }
+    
+    private void ParseCount(DatabaseType databaseType, MethodCallExpression expression, LambdaParser lambdaParser, QueryBuilder queryBuilder)
+    {
+        queryBuilder.Append(" COUNT(");
+        lambdaParser.ParseExpression(expression.Arguments[0]);
+        queryBuilder.Append(")");
+    }
+    
+    private void ParseDistinct(DatabaseType databaseType, MethodCallExpression expression, LambdaParser lambdaParser, QueryBuilder queryBuilder)
+    {
+        queryBuilder.Append(" DISTINCT(");
+        lambdaParser.ParseExpression(expression.Arguments[0]);
+        queryBuilder.Append(")");
+    }
+    
+    private void ParseMax(DatabaseType databaseType, MethodCallExpression expression, LambdaParser lambdaParser, QueryBuilder queryBuilder)
+    {
+        queryBuilder.Append(" MAX(");
+        lambdaParser.ParseExpression(expression.Arguments[0]);
+        queryBuilder.Append(")");
+    }
+    
+    private void ParseMin(DatabaseType databaseType, MethodCallExpression expression, LambdaParser lambdaParser, QueryBuilder queryBuilder)
+    {
+        queryBuilder.Append(" MIN(");
+        lambdaParser.ParseExpression(expression.Arguments[0]);
+        queryBuilder.Append(")");
+    }
+    
+    private void ParseSum(DatabaseType databaseType, MethodCallExpression expression, LambdaParser lambdaParser, QueryBuilder queryBuilder)
+    {
+        queryBuilder.Append(" SUM(");
+        lambdaParser.ParseExpression(expression.Arguments[0]);
+        queryBuilder.Append(")");
+    }
+    
+    private void ParseAvg(DatabaseType databaseType, MethodCallExpression expression, LambdaParser lambdaParser, QueryBuilder queryBuilder)
+    {
+        queryBuilder.Append(" AVG(");
+        lambdaParser.ParseExpression(expression.Arguments[0]);
+        queryBuilder.Append(")");
+    }
 
     #endregion
     

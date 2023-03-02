@@ -6,10 +6,14 @@ public static class PfHelper
 {
     #region Global
     public static bool Like(this object column, string value) => throw new PetoncleException($"Use {nameof(Like)} function in expression");
-    
     public static bool NotLike(this object column, string value) => throw new PetoncleException($"Use {nameof(NotLike)} function in expression");
-    
     public static object As(this object column, string columnName) => throw new PetoncleException($"Use {nameof(As)} function in expression");
+    public static object Count(this object column) => throw new PetoncleException($"Use {nameof(Count)} function in expression");
+    public static object Distinct(this object column) => throw new PetoncleException($"Use {nameof(Distinct)} function in expression");
+    public static object Max(this object column) => throw new PetoncleException($"Use {nameof(Max)} function in expression");
+    public static object Min(this object column) => throw new PetoncleException($"Use {nameof(Min)} function in expression");
+    public static object Sum(this object column) => throw new PetoncleException($"Use {nameof(Sum)} function in expression");
+    public static object Avg(this object column) => throw new PetoncleException($"Use {nameof(Avg)} function in expression");
     
     #endregion
     

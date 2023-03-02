@@ -11,9 +11,9 @@ public class SelectTest : General
     {
         InitializePetoncle();
         Petoncle.Db.Truncate<User>();
-        Petoncle.Db.Insert(new User {FirstName = "Bob", LastName = "Sponge", Age = 11});
-        Petoncle.Db.Insert(new User {FirstName = "John", LastName = "Doe", Age = 10});
-        Petoncle.Db.Insert(new User {LastName = "Ali", Age = 22});
+        Petoncle.Db.Insert(new User {FirstName = "Bob", LastName = "Sponge", Age = 11, Enabled = false});
+        Petoncle.Db.Insert(new User {FirstName = "John", LastName = "Doe", Age = 10, Enabled = true});
+        Petoncle.Db.Insert(new User {LastName = "Ali", Age = 22, Enabled = false});
     }
 
     [Test]
@@ -146,4 +146,38 @@ public class SelectTest : General
         foreach (User user in list)
             Assert.That(user.Id, Is.EqualTo(user.Age + 1));
     }
+
+    [Test]
+    public void SelectSum()
+    {
+        List<User> list = Petoncle.Db.Select<User>().Columns(u => u.Age.Sum().As("Age")).ToList();
+        Assert.That(list.Count, Is.EqualTo(1));
+        Assert.That(list[0].Age, Is.EqualTo(43));
+    }
+    
+    [Test]
+    public void SelectMin()
+    {
+        List<User> list = Petoncle.Db.Select<User>().Columns(u => u.Age.Min().As("Age")).ToList();
+        Assert.That(list.Count, Is.EqualTo(1));
+        Assert.That(list[0].Age, Is.EqualTo(10));
+    }
+    
+    [Test]
+    public void SelectMax()
+    {
+        List<User> list = Petoncle.Db.Select<User>().Columns(u => u.Age.Max().As("Age")).ToList();
+        Assert.That(list.Count, Is.EqualTo(1));
+        Assert.That(list[0].Age, Is.EqualTo(22));
+    }
+    
+    [Test]
+    public void SelectAvg()
+    {
+        List<User> list = Petoncle.Db.Select<User>().Columns(u => u.Age.Avg().As("Age")).ToList();
+        Assert.That(list.Count, Is.EqualTo(1));
+        Assert.That(list[0].Age, Is.EqualTo(14));
+    }
+    
+    
 }
