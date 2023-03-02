@@ -14,6 +14,8 @@ internal class ColumnDefinition
     internal bool IsReadOnly { get; }
     
     internal string SqlColumnName { get; }
+    
+    internal string ColumnName { get; }
 
     private object _setValueAction;
     private object _getValueAction;
@@ -25,7 +27,8 @@ internal class ColumnDefinition
         IsPrimary = isPrimary;
         IsAutoIncrement = isAutoIncrement;
         IsReadOnly = isReadOnly;
-        SqlColumnName = "[" + (DbColumn.ColumnName ?? property.Name) + "]";
+        ColumnName = DbColumn.ColumnName ?? property.Name;
+        SqlColumnName = "[" + ColumnName + "]";
     }
 
     internal ColumnDefinition SetActions<T>()

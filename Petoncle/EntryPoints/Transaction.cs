@@ -1,7 +1,3 @@
-using System;
-using System.Data;
-using System.Linq.Expressions;
-
 namespace PetoncleDb;
 //
 // public class Transaction : EntryPoint, IDisposable

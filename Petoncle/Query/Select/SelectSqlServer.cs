@@ -1,6 +1,4 @@
-﻿using Microsoft.IdentityModel.Tokens;
-
-namespace PetoncleDb;
+﻿namespace PetoncleDb;
 
 internal class SelectSqlServer : SelectBase
 {
@@ -23,12 +21,19 @@ internal class SelectSqlServer : SelectBase
         {
             queryBuilder.Append("*");
         }
+        else if (ColumnQueries.Count > 0)
+        {
+            for (int i = 0; i < ColumnQueries.Count; i++)
+            {
+                ColumnQueries[i].Build(ref queryBuilder);
+                queryBuilder.Append(",");
+            }
+            queryBuilder.RemoveLastChar();
+        }
         else
         {
             for (int i = 0; i < PObject.Columns.Length; i++)
-            {
                 queryBuilder.Append(PObject.Columns[i].SqlColumnName + ",");
-            }
             queryBuilder.RemoveLastChar();
         }
         #endregion

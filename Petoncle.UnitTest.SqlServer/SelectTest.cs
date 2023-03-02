@@ -1,3 +1,4 @@
+using PetoncleDb.SqlServer;
 using PetoncleUT.SqlServer.Objects;
 
 namespace PetoncleUT.SqlServer;
@@ -118,5 +119,31 @@ public class SelectTest : General
         Assert.That(list.Count, Is.EqualTo(2));
         Assert.That(list[0].Age, Is.EqualTo(22));
         Assert.That(list[1].Age, Is.EqualTo(11));
+    }
+
+    [Test]
+    public void SelectColumns()
+    {
+        List<User> list = Petoncle.Db.Select<User>().Columns(u => u.Age, u => u.Id).ToList();
+        Assert.That(list.Count, Is.EqualTo(3));
+        foreach (User user in list)
+        {
+            Assert.That(user.Id, Is.Not.EqualTo(0));
+            Assert.That(user.Age, Is.Not.EqualTo(0));
+            Assert.That(user.LastName, Is.Null);
+            Assert.That(user.FirstName, Is.Null);
+            Assert.That(user.Enabled, Is.Null);
+            Assert.That(user.CreateDate, Is.Null);
+            
+        }
+    }
+    
+    [Test]
+    public void SelectAs()
+    {
+        List<User> list = Petoncle.Db.Select<User>().Columns(u => (u.Age + 1).As("Id"), u => u.Age).ToList();
+        Assert.That(list.Count, Is.EqualTo(3));
+        foreach (User user in list)
+            Assert.That(user.Id, Is.EqualTo(user.Age + 1));
     }
 }

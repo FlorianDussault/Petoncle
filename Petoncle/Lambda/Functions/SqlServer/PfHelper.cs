@@ -9,6 +9,8 @@ public static class PfHelper
     
     public static bool NotLike(this object column, string value) => throw new PetoncleException($"Use {nameof(NotLike)} function in expression");
     
+    public static object As(this object column, string columnName) => throw new PetoncleException($"Use {nameof(As)} function in expression");
+    
     #endregion
     
     #region Date

@@ -30,6 +30,12 @@ public class PfParser : LambdaFunctionParser
         lambdaParser.ParseExpression(expression.Arguments[1]);
     }
     
+    private void ParseAs(DatabaseType databaseType, MethodCallExpression expression, LambdaParser lambdaParser, QueryBuilder queryBuilder)
+    {
+        lambdaParser.ParseExpression(expression.Arguments[0]);
+        queryBuilder.Append(" AS " + expression.Arguments[1]);
+    }
+
     #endregion
     
     #region Date

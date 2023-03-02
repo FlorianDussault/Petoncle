@@ -34,27 +34,33 @@ internal sealed class PetoncleEnumerable<T> : IPetoncleEnumerable<T>
         if (_pObject.ObjectType == ObjectType.Dynamic)
         {
             foreach (object obj in ReadDynamic(dataReader))
-            {
-                yield return (T)obj;
-            }
-
+                yield return (T) obj;
             yield break;
         }
-        
-        ColumnDefinition[] columns = _pObject.Columns;
 
-        while (dataReader.Read())
+        if (!dataReader.Read()) yield break;
+
+        List<(int Index, ColumnDefinition ColumnDefinition)> colu = new List<(int, ColumnDefinition)>();
+        ReadOnlySpan<ColumnDefinition> objectColumns = _pObject.Columns;
+        for (int i = 0; i < dataReader.FieldCount; i++)
+        {
+            string fieldName = dataReader.GetName(i);
+            for (int j = 0; j < objectColumns.Length; j++)
+                if (string.Equals(objectColumns[j].ColumnName, fieldName, StringComparison.InvariantCulture))
+                    colu.Add(new ValueTuple<int, ColumnDefinition>(i, objectColumns[j]));
+        }
+
+        do
         {
             T obj = _pObject.CreateInstance<T>();
-            for (int j = 0; j < columns.Length; j++)
+            for (int i = 0; i < colu.Count; i++)
             {
-                object value = dataReader.GetValue(j);
+                object value = dataReader.GetValue(colu[i].Index);
                 if (value is not DBNull)
-                    columns[j].SetValue(obj,  value);
+                    colu[i].ColumnDefinition.SetValue(obj,  value);
             }
             yield return obj;
-        }
-        
+        } while (dataReader.Read());
     }
     private IEnumerable<T> ReadDynamic(IDataReader dataReader)
     {
@@ -116,6 +122,20 @@ internal sealed class PetoncleEnumerable<T> : IPetoncleEnumerable<T>
     public IPetoncleEnumerable<T> Top(int top)
     {
         _selectBase.SetTop(new TopQuery(top));
+        return this;
+    }
+
+    public IPetoncleEnumerable<T> Columns(params Expression<Func<T, object>>[] columnsExpression)
+    {
+        foreach (Expression<Func<T,object>> expression in columnsExpression)
+            _selectBase.SetColumns(new ColumnExpressionQuery(expression));
+        return this;
+    }
+
+    public IPetoncleEnumerable<T> Columns(params string[] columns)
+    {
+        foreach (string column in columns)
+            _selectBase.SetColumns(new ColumnSqlQuery(column));
         return this;
     }
 }

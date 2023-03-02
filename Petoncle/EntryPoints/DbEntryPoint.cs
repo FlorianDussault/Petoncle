@@ -1,6 +1,3 @@
-using System;
-using System.Linq.Expressions;
-
 namespace PetoncleDb;
 
 internal sealed class DbEntryPoint : EntryPoint
