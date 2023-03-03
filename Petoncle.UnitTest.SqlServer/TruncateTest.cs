@@ -14,6 +14,7 @@ public class TruncateTest : General
     [Test]
     public void TruncatePetoncleObject()
     {
+        Assert.Throws<PetoncleException>(() => Petoncle.Db.Truncate(null));
         Petoncle.Db.Truncate<User>();
         Petoncle.Db.Insert(new User {LastName = "Ali", Age = 22});
         Assert.That(Petoncle.Db.Select<User>().Count, Is.EqualTo(1));

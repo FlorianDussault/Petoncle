@@ -19,6 +19,9 @@ public class SelectTest : General
     [Test]
     public void SelectPetoncleObject()
     {
+        Assert.Throws<PetoncleException>(() => { Petoncle.Db.Select<dynamic>(); });
+        Assert.Throws<PetoncleException>(() => { Petoncle.Db.Select<int>(); });
+        
         List<User> list = Petoncle.Db.Select<User>().ToList();
         Assert.That(list.Count, Is.EqualTo(3));
         Assert.That(list[0].Id, Is.EqualTo(1));
@@ -55,21 +58,46 @@ public class SelectTest : General
 
     [Test]
     public void SelectCount()
-    {
+    {;
         Assert.That(Petoncle.Db.Select<User>().Count, Is.EqualTo(3));
         Assert.That(Petoncle.Db.Select("users").Count, Is.EqualTo(3));
     }
 
     [Test]
-    public void SelectWhereExpression()
+    public void SelectWhereExpressionPetoncle()
     {
         List<User> list = Petoncle.Db.Select<User>(u=>u.Age == 22).OrderBy(u=>u.Age).ToList();
+        Assert.That(list.Count, Is.EqualTo(1));
+        Assert.That(list[0].LastName, Is.EqualTo("Ali"));
+        list = Petoncle.Db.Select<User>("users", u=>u.Age == 22).OrderBy(u=>u.Age).ToList();
         Assert.That(list.Count, Is.EqualTo(1));
         Assert.That(list[0].LastName, Is.EqualTo("Ali"));
     }
     
     [Test]
-    public void SelectWhereSql()
+    public void SelectWhereExpressionAnonymous()
+    {
+        List<UserAnonymous> list = Petoncle.Db.Select<UserAnonymous>("users", u=>u.Age == 22).OrderBy(u=>u.Age).ToList();
+        Assert.That(list.Count, Is.EqualTo(1));
+        Assert.That(list[0].LastName, Is.EqualTo("Ali"));
+        list = Petoncle.Db.Select<UserAnonymous>("dbo","users", u=>u.Age == 22).OrderBy(u=>u.Age).ToList();
+        Assert.That(list.Count, Is.EqualTo(1));
+        Assert.That(list[0].LastName, Is.EqualTo("Ali"));
+    }
+    
+    [Test]
+    public void SelectWhereSqlPetoncle()
+    {
+        List<User> list = Petoncle.Db.Select<User>("dbo", "users", new Sql("Age = @Age", new {Age = 22})).ToList();
+        Assert.That(list.Count, Is.EqualTo(1));
+        Assert.That(list[0].LastName, Is.EqualTo("Ali"));
+        list = Petoncle.Db.Select<User>(new Sql("Age = @Age", new {Age = 22})).ToList();
+        Assert.That(list.Count, Is.EqualTo(1));
+        Assert.That(list[0].LastName, Is.EqualTo("Ali"));
+    }
+    
+    [Test]
+    public void SelectWhereSqlDynamic()
     {
         List<dynamic> list = Petoncle.Db.Select<dynamic>("users", new Sql("Age = @Age", new {Age = 22})).ToList();
         Assert.That(list.Count, Is.EqualTo(1));
@@ -183,6 +211,12 @@ public class SelectTest : General
     public void SelectGroupBy()
     {
         List<User> list = Petoncle.Db.Select<User>().Columns(u => u.Enabled, u => 1.Count().As("Age")).GroupBy(u=>u.Enabled).OrderByAsc(u=>u.Enabled).ToList();
+        Assert.That(list.Count, Is.EqualTo(2));
+        Assert.That(list[0].Enabled, Is.False);
+        Assert.That(list[0].Age, Is.EqualTo(2));
+        Assert.That(list[1].Enabled, Is.True);
+        Assert.That(list[1].Age, Is.EqualTo(1));
+        list = Petoncle.Db.Select<User>().Columns(u => u.Enabled, u => 1.Count().As("Age")).GroupBy("enabled").OrderByAsc(u=>u.Enabled).ToList();
         Assert.That(list.Count, Is.EqualTo(2));
         Assert.That(list[0].Enabled, Is.False);
         Assert.That(list[0].Age, Is.EqualTo(2));

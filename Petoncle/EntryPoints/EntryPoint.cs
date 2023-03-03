@@ -18,17 +18,12 @@ public abstract class EntryPoint
     public IPetoncleEnumerable<T> Select<T>() => Select<T>(null, null, null, null);
     public IPetoncleEnumerable<T> Select<T>(string tableName) => Select<T>(null, tableName, null, null);
     public IPetoncleEnumerable<dynamic> Select(string tableName) => Select<dynamic>(null, tableName, null, null);
-
     public IPetoncleEnumerable<T> Select<T>(Expression<Func<T, bool>> where) => Select<T>(null, null, where, null);
-    
     public IPetoncleEnumerable<T> Select<T>(Sql whereSql) => Select<T>(null, null, null, whereSql);
-
     public IPetoncleEnumerable<T> Select<T>(string tableName, Expression<Func<T, bool>> where) => Select<T>(null, tableName, where, null);
-    
+    public IPetoncleEnumerable<T> Select<T>(string schemaName, string tableName, Expression<Func<T, bool>> where) => Select<T>(schemaName, tableName, where, null);
     public IPetoncleEnumerable<T> Select<T>(string tableName, Sql whereSql) => Select<T>(null, tableName, null, whereSql);
-    
     public IPetoncleEnumerable<T> Select<T>(string schemaName, string tableName, Sql whereSql) => Select<T>(schemaName, tableName, null, whereSql);
-    
     private IPetoncleEnumerable<T> Select<T>(string schemaName, string tableName, Expression whereExpression, Sql whereSql)
     {
         // TODO: Check performances
@@ -56,7 +51,7 @@ public abstract class EntryPoint
         if (tableName == null && type == typeof(object))
             throw new PetoncleException($"You cannot call the {nameof(Insert)} method with a dynamic type without a table name in argument");
         
-        Petoncle.ObjectManager.PrepareDbObject(type, schemaName, tableName, out PObject pObject);
+        Petoncle.ObjectManager.PrepareDbObject(type, schemaName, tableName, obj, out PObject pObject);
         if (pObject == null)
             throw new PetoncleException($"Unknown object type: {type.FullName}");
         
@@ -121,14 +116,34 @@ public abstract class EntryPoint
         
         Petoncle.ObjectManager.PrepareDbObject(type, schemaName, tableName, out PObject pObject);
         pObject ??= new PObject(schemaName, tableName, null);
-        //     throw new PetoncleException($"Unknown object type: {type.FullName}");
         
-        DeleteBase insertBase = QueryFactory.Delete(Connection, pObject, obj);
+        DeleteBase deleteBase = QueryFactory.Delete(Connection, pObject, obj);
         QueryBuilder queryBuilder = new(pObject, Connection.DatabaseType);
-        
-        if (whereExpression != null) insertBase.SetWhereQuery(new WhereExpressionQuery(whereExpression));
-        else if (whereSql != null) insertBase.SetWhereQuery(new WhereSqlQuery(whereSql));
-        insertBase.Build(ref queryBuilder);
+
+        if (obj != null)
+        {
+            // Create WHERE
+            BinaryExpression binaryExpression = null;
+            foreach (ColumnDefinition primaryKey in pObject.PrimaryKeys)
+            {
+                ParameterExpression objExpression = Expression.Parameter(obj.GetType(), "source");
+                MemberExpression member = Expression.Property(objExpression, primaryKey.Property);
+                ConstantExpression value = Expression.Constant(primaryKey.GetValue(obj));
+                BinaryExpression childExpression = Expression.Equal(member, value);
+                if (binaryExpression == null)
+                {
+                    binaryExpression = childExpression;
+                    continue;
+                }
+                binaryExpression = Expression.AndAlso(binaryExpression, childExpression);
+            }
+
+            whereExpression = binaryExpression;
+        }
+        if (whereExpression != null) deleteBase.SetWhereQuery(new WhereExpressionQuery(whereExpression));
+        else if (whereSql != null) deleteBase.SetWhereQuery(new WhereSqlQuery(whereSql));
+
+        deleteBase.Build(ref queryBuilder);
         
         using SqlClient sqlClient = new(Connection);
         return sqlClient.ExecuteNonQuery(queryBuilder);

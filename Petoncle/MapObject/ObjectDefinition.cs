@@ -66,6 +66,8 @@ internal sealed class PObject
     public Type Type => _objectDefinition.Type;
 
     public ColumnDefinition[] Columns => _objectDefinition.Columns;
+    // TODO : Change Span
+    public Span<ColumnDefinition> PrimaryKeys => _objectDefinition.PrimaryKeys;
 
     public ColumnDefinition[] ColumnsCanWrite => _objectDefinition.ColumnsCanWrite;
 

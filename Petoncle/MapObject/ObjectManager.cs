@@ -10,6 +10,7 @@ namespace PetoncleDb;
 internal class ObjectManager
 {
     private ObjectDefinition[] Objects { get; set; }
+    private ObjectDefinition DynamicObject { get; set; }
     private Collection<ObjectDefinition> _bufferList;
     
     public ObjectManager()
@@ -60,15 +61,32 @@ internal class ObjectManager
         if (columnDefinitions.Count == 0) throw new PetoncleException($"No properties found in object {typeof(T).Name}");
         return new ObjectDefinition(ObjectType.Anonymous, typeof(T), new DbTable(typeof(T).Name), columnDefinitions.ToArray()).SetAction<T>();
     }
+    
+    private ObjectDefinition RegisterDynamic(object obj)
+    {
+        List<ColumnDefinition> columnDefinitions = new List<ColumnDefinition>();
+        PropertyInfo[] properties = obj.GetType().GetProperties();
+        for (int i = 0; i < properties.Length; i++)
+        {
+            if (!properties[i].CanRead) continue;
+            columnDefinitions.Add(new ColumnDefinition(properties[i], new DbColumn(properties[i].Name), false, false, false));
+        }
+    
+        if (columnDefinitions.Count == 0) throw new PetoncleException($"No properties found in dynamic object");
+        return new ObjectDefinition(ObjectType.Dynamic, obj.GetType(), new DbTable(obj.GetType().Name), columnDefinitions.ToArray());
+    }
 
     internal void CommitTables()
     {
         // Add dynamic
-        _bufferList.Add(new ObjectDefinition(ObjectType.Dynamic, typeof(object), new DbTable(null),Array.Empty<ColumnDefinition>()));
+        DynamicObject = new ObjectDefinition(ObjectType.Dynamic, typeof(object), new DbTable(null),Array.Empty<ColumnDefinition>());
+        _bufferList.Add(DynamicObject);
         Objects = _bufferList.ToArray();
     }
 
-    public void PrepareDbObject(Type type, string schemaName, string tableName,  out PObject pObject)
+    public void PrepareDbObject(Type type, string schemaName, string tableName,  out PObject pObject) => PrepareDbObject(type, schemaName, tableName, null, out pObject);
+
+    public void PrepareDbObject(Type type, string schemaName, string tableName, object obj,  out PObject pObject)
     {
         pObject = null;
         for (int i = 0; i < Objects.Length; i++)
@@ -77,6 +95,15 @@ internal class ObjectManager
             pObject = Objects[i].CreatePObject(schemaName, tableName);
             return;
         }
+        if (obj != null)
+            pObject = RegisterDynamic(obj).CreatePObject(schemaName, tableName);
+        return;
         
+        if (obj != null && obj.GetType() == typeof(object))
+        {
+            
+            // Dynamic
+            
+        }
     }
 }

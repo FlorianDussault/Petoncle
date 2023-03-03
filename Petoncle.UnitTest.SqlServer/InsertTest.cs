@@ -14,13 +14,20 @@ public class InsertTest : General
     [Test]
     public void InsertPetoncleObject()
     {
-        Petoncle.Db.Insert(new User {FirstName = "UT_INSERT_PTCL_OBJ_FN", LastName = "UT_INSERT_PTCL_OBJ_LN", Age = 30});
+        Assert.Throws<PetoncleException>(() => { Petoncle.Db.Insert(new {Age = 23}); });
+        Assert.Throws<PetoncleException>(() => { Petoncle.Db.Insert(0); });
+        Petoncle.Db.Truncate<User>();
+        int cnt = Petoncle.Db.Insert(new User {FirstName = "UT_INSERT_PTCL_OBJ_FN", LastName = "UT_INSERT_PTCL_OBJ_LN", Age = 30});
+        Assert.That(cnt, Is.EqualTo(1));
+        Assert.That(Petoncle.Db.Select<User>().Count, Is.EqualTo(1));
     }
-    
-    [Ignore("")]
+
+    [Test]
     public void InsertAnonymousObject()
     {
-        throw new NotImplementedException();
-        // var a = Petoncle.Db.Select<UserAnonymous>("users", u=>u.Id == 1).ToList();
+        Petoncle.Db.Truncate<User>();
+        int cnt = Petoncle.Db.Insert("users", new  {FirstName = "UT_INSERT_PTCL_OBJ_FN", LastName = "UT_INSERT_PTCL_OBJ_LN", Age = 30});
+        Assert.That(cnt, Is.EqualTo(1));
+        Assert.That(Petoncle.Db.Select<User>().Count, Is.EqualTo(1));
     }
 }
