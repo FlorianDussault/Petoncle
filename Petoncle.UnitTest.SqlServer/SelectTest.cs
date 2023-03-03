@@ -132,7 +132,7 @@ public class SelectTest : General
             Assert.That(user.Age, Is.Not.EqualTo(0));
             Assert.That(user.LastName, Is.Null);
             Assert.That(user.FirstName, Is.Null);
-            Assert.That(user.Enabled, Is.Null);
+            Assert.That(user.Enabled, Is.False);
             Assert.That(user.CreateDate, Is.Null);
             
         }
@@ -178,6 +178,16 @@ public class SelectTest : General
         Assert.That(list.Count, Is.EqualTo(1));
         Assert.That(list[0].Age, Is.EqualTo(14));
     }
-    
+
+    [Test]
+    public void SelectGroupBy()
+    {
+        List<User> list = Petoncle.Db.Select<User>().Columns(u => u.Enabled, u => 1.Count().As("Age")).GroupBy(u=>u.Enabled).OrderByAsc(u=>u.Enabled).ToList();
+        Assert.That(list.Count, Is.EqualTo(2));
+        Assert.That(list[0].Enabled, Is.False);
+        Assert.That(list[0].Age, Is.EqualTo(2));
+        Assert.That(list[1].Enabled, Is.True);
+        Assert.That(list[1].Age, Is.EqualTo(1));
+    }
     
 }

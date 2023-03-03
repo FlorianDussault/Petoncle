@@ -16,8 +16,8 @@ public class User : DbObject
     [DbColumn]
     public int Age { get; set; }
     
-    [DbColumn, DbReadOnly]
-    public bool? Enabled { get; set; }
+    [DbColumn]
+    public bool Enabled { get; set; }
     
     [DbColumn("create_date")]
     public DateTime? CreateDate { get; set; }

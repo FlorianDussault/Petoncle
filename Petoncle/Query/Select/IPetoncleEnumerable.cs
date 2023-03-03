@@ -15,4 +15,6 @@ public interface IPetoncleEnumerable<T> : IEnumerable<T> {
     IPetoncleEnumerable<T> Top(int top);
     IPetoncleEnumerable<T> Columns(params Expression<Func<T, object>>[] columnsExpression);
     IPetoncleEnumerable<T> Columns(params string[] columns);
+    IPetoncleEnumerable<T> GroupBy(params Expression<Func<T, object>>[] columnsExpression);
+    IPetoncleEnumerable<T> GroupBy(params string[] columns);
 }

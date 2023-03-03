@@ -48,6 +48,19 @@ internal class SelectSqlServer : SelectBase
         }
         #endregion
         
+        #region GROUP BY
+        if (GroupByQueries.Count > 0)
+        {
+            queryBuilder.Append(" GROUP BY ");
+            foreach (IGroupByQuery groupByQuery in GroupByQueries)
+            {
+                groupByQuery.Build(ref queryBuilder);
+                queryBuilder.Append(",");
+            }
+            queryBuilder.RemoveLastChar();
+        }
+        #endregion
+        
         #region ORDER BY
 
         if (OrderByQueries.Count > 0)

@@ -138,4 +138,18 @@ internal sealed class PetoncleEnumerable<T> : IPetoncleEnumerable<T>
             _selectBase.SetColumns(new ColumnSqlQuery(column));
         return this;
     }
+
+    public IPetoncleEnumerable<T> GroupBy(params Expression<Func<T, object>>[] columnsExpression)
+    {
+        foreach (Expression<Func<T,object>> expression in columnsExpression)
+            _selectBase.SetGroupBy(new GroupByExpressionQuery(expression));
+        return this;
+    }
+    
+    public IPetoncleEnumerable<T> GroupBy(params string[] columns)
+    {
+        foreach (string column in columns)
+            _selectBase.SetGroupBy(new GroupBySqlQuery(column));
+        return this;
+    }
 }
