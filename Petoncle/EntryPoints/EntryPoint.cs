@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Linq.Expressions;
 
 namespace PetoncleDb;
@@ -45,18 +46,19 @@ public abstract class EntryPoint
     #endregion
 
     #region Insert
-    public int Insert<T>(T obj) => Insert<T>(null, null, obj);
-    
-    private int Insert<T>(string schemaName, string tableName, T obj)
+    public int Insert(params object[] objects) => Insert(null, null, objects);
+    public int Insert(string tableName, params object[] objects) => Insert(null, tableName, objects);
+    public int Insert(string schemaName, string tableName, params object[] objects) => objects.Sum(obj => Insert(schemaName, tableName, obj: obj));
+    private int Insert(string schemaName, string tableName, object obj)
     {
         // TODO: Check performances
-        Type type = typeof(T);
+        Type type = obj.GetType();
         if (tableName == null && type == typeof(object))
             throw new PetoncleException($"You cannot call the {nameof(Insert)} method with a dynamic type without a table name in argument");
         
-        Petoncle.ObjectManager.PrepareDbObject(typeof(T), schemaName, tableName, out PObject pObject);
+        Petoncle.ObjectManager.PrepareDbObject(type, schemaName, tableName, out PObject pObject);
         if (pObject == null)
-            throw new PetoncleException($"Unknown object type: {typeof(T).FullName}");
+            throw new PetoncleException($"Unknown object type: {type.FullName}");
         
         InsertBase insertBase = QueryFactory.Insert(Connection, pObject, obj);
         QueryBuilder queryBuilder = new(pObject, Connection.DatabaseType);
@@ -65,6 +67,7 @@ public abstract class EntryPoint
         using SqlClient sqlClient = new(Connection);
         return sqlClient.ExecuteNonQuery(queryBuilder);
     }
+
     #endregion
     
     #region Update
